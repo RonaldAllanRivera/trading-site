@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LeadsController extends Controller
 {
@@ -61,5 +62,47 @@ class LeadsController extends Controller
         Auth::login($user);
 
         return redirect()->route('dashboard')->with('success', 'Thanks! Your account was created and you are now signed in.');
+    }
+
+    public function exportCsv(): StreamedResponse
+    {
+        // Ensure only admins can export
+        abort_unless(Auth::check() && (Auth::user()->is_admin ?? false), 403);
+
+        $fileName = 'leads-' . now()->format('Ymd-His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Cache-Control' => 'no-store, no-cache',
+        ];
+
+        return response()->stream(function () {
+            $handle = fopen('php://output', 'w');
+
+            // CSV header
+            fputcsv($handle, [
+                'ID', 'First Name', 'Last Name', 'Email', 'Country',
+                'Phone Prefix', 'Phone Number', 'Status', 'Created At',
+            ]);
+
+            Lead::orderBy('id')->chunk(500, function ($chunk) use ($handle) {
+                foreach ($chunk as $lead) {
+                    fputcsv($handle, [
+                        $lead->id,
+                        $lead->first_name,
+                        $lead->last_name,
+                        $lead->email,
+                        $lead->country,
+                        $lead->phone_prefix,
+                        $lead->phone_number,
+                        $lead->status,
+                        optional($lead->created_at)->toDateTimeString(),
+                    ]);
+                }
+            });
+
+            fclose($handle);
+        }, 200, $headers);
     }
 }

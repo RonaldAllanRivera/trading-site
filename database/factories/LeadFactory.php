@@ -3,8 +3,10 @@
 namespace Database\Factories;
 
 use App\Models\Lead;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<\App\Models\Lead>
@@ -12,6 +14,21 @@ use Illuminate\Support\Facades\Crypt;
 class LeadFactory extends Factory
 {
     protected $model = Lead::class;
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Lead $lead) {
+            $name = trim(($lead->first_name ?? '') . ' ' . ($lead->last_name ?? '')) ?: $lead->email;
+            User::firstOrCreate(
+                ['email' => $lead->email],
+                [
+                    'name' => $name,
+                    'password' => 'password', // will be hashed by User model cast
+                    'is_admin' => false,
+                ]
+            );
+        });
+    }
 
     public function definition(): array
     {

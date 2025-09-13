@@ -15,6 +15,8 @@ Route::view('/sign-up', 'landing.sign-up')->name('sign-up');
 
 // Lead submissions
 Route::post('/leads', [LeadsController::class, 'store'])->name('leads.store');
+// Export leads CSV (admin check is performed in the controller)
+Route::get('/leads/export', [LeadsController::class, 'exportCsv'])->name('leads.export');
 
 // Authentication routes for public users
 Route::post('/login', [AuthController::class, 'login'])->name('login.perform');

@@ -14,6 +14,12 @@ class ListLeads extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+            Actions\Action::make('exportCsv')
+                ->label('Export CSV')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray')
+                ->url(fn () => route('leads.export'))
+                ->openUrlInNewTab(),
         ];
     }
 }

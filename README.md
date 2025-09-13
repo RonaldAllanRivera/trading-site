@@ -1,12 +1,43 @@
 # The Immediate Trade Pro — Laravel 12 + Filament 4
 
-This repository contains a Laravel 12 application with Filament 4 installed for the admin panel, a public-facing landing site, and a simple public user dashboard + authentication (signup/login/logout). The landing pages are implemented as Blade views using modular includes and static assets served from `public/landing-pages/`.
+This repository contains a Laravel 12 application with Filament 4 admin, a polished public landing site, and a complete public authentication flow (signup/login/logout, password reset, change password) with a simple dashboard. It includes lead capture, admin CRUD for users and leads, CSV export, seeders, and a testing guide. Landing pages are implemented as Blade views using modular includes and static assets served from `public/landing-pages/`.
 
 ## Tech Stack
 
 - Laravel 12 (PHP 8.2+)
 - Filament 4 (Livewire v3)
 - MySQL / MariaDB
+
+## Features
+
+- Public Landing Experience
+  - Modular Blade includes with production static assets.
+  - Auth-aware header/menus: hide Sign Up and switch Login→Logout when authenticated.
+  - "Hello, {name}" banner with a “Go to Dashboard” button for signed-in users.
+
+- Lead Capture & Public Auth
+  - Signup posts to `POST /leads`, creates both a `Lead` and a `User`, then logs in and redirects to `/dashboard`.
+  - Frictionless password UX: simple passwords allowed, a one-click generator, show/hide toggle, and a tooltip.
+  - Public login/logout with `/login` and `POST /logout`.
+  - Password reset (forgot/reset) and change password pages.
+
+- Dashboard
+  - Minimal dashboard at `/dashboard` under the landing layout.
+
+- Admin (Filament 4)
+  - Leads: list with search, status badge/filter, and CSV export.
+  - Users: list/create/edit with `is_admin` toggle and optional password update.
+  - Access control: only users with `is_admin = true` can access `/admin`; non-admins are redirected to `/dashboard`.
+  - Admin login includes a “Forgot your password?” link.
+
+- Data & Seeders
+  - `AdminSeeder` reads `ADMIN_NAME|EMAIL|PASSWORD` from `.env` and promotes the user to admin.
+  - `LeadSeeder` seeds 15 realistic leads.
+  - `LeadFactory` auto-creates a matching `User` (password: `password`) for each seeded lead.
+
+- Developer Experience
+  - Clear route map, environment/bootstrap steps, and testing tutorial.
+  - CSV export endpoint streams in chunks for memory efficiency.
 
 ## Public Landing Pages
 
