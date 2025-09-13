@@ -5,6 +5,18 @@
             – <span class="countdown">mm:ss</span>
         </p>
     </div>
+    @auth
+    <div class="user-banner" style="background: #f8fafc; border-bottom: 1px solid #e5e7eb;">
+        <div class="container w-container" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0;">
+            <div class="user-greeting" style="font-size: 14px; color: #111827;">
+                Hello, {{ auth()->user()->name ?: auth()->user()->email }}
+            </div>
+            <div class="user-actions">
+                <a href="{{ route('dashboard') }}" class="btn small w-button" style="padding: 6px 12px;">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+    @endauth
     <div class="bottom-head">
         <div class="container w-container">
             <div class="header-wrap">
