@@ -36,5 +36,24 @@ class AdminSeeder extends Seeder
                 $user->is_admin ? 'true' : 'false'
             ));
         }
+
+        // Additional seeded admin (explicit values)
+        $tester = User::updateOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'name' => 'Admin Tester',
+                'password' => '123456',
+                'is_admin' => true,
+            ]
+        );
+
+        if (method_exists($this->command, 'info')) {
+            $this->command->info(sprintf(
+                'Admin user is ready. Email: %s | Password: %s | is_admin: %s',
+                $tester->email,
+                '123456',
+                $tester->is_admin ? 'true' : 'false'
+            ));
+        }
     }
 }

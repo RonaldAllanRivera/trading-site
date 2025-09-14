@@ -398,7 +398,11 @@ php artisan migrate --force
 php artisan optimize
 ```
 
-Alternative: convert an existing `public_html` into a Git working copy
+Option B.2 — In-place Git (non-empty `public_html`, keep backups like `old-root-backup/`)
+First-time GitHub SSH on this server will ask to trust the host; answer `yes`. Verify auth:
+```bash
+ssh -T git@github.com   # expect a success message (no shell access provided)
+```
 ```bash
 # WARNING: this will overwrite local changes. Backup first.
 cd ~/www/ARTWORKDOMAIN.COM/public_html
@@ -414,6 +418,9 @@ git init
 git remote add origin git@github.com:RonaldAllanRivera/trading-site.git
 git fetch --depth 1 origin main
 git reset --hard origin/main
+
+# Keep backup folders out of git status (local exclude)
+echo "old-root-backup/" >> .git/info/exclude
 
 # Install and optimize
 composer install --no-dev --optimize-autoloader
