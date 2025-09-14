@@ -12,6 +12,7 @@ This repository contains a Laravel 12 application with Filament 4 admin, a polis
 - [Authentication & Dashboard (Public)](#authentication--dashboard-public)
 - [Local Development](#local-development)
 - [Admin Notes](#admin-notes)
+- [Testing Tutorial (Step-by-step)](#testing-tutorial-step-by-step)
 - [How to Test Cloaker](#how-to-test-cloaker)
 - [Deployment (SiteGround SSH + GitHub)](#deployment-siteground-ssh--github)
 - [Troubleshooting](#troubleshooting)
@@ -233,6 +234,14 @@ Open:
 
 6) Change password (authenticated)
    - Visit `/settings/password` and submit current + new password.
+
+7) Export leads as CSV (admin)
+   - Visit `/admin/leads` as an admin.
+   - Click the `Export CSV` header action; a streamed CSV download will open in a new tab.
+
+8) Cloaker quick test (admin)
+   - Visit Filament → Marketing → `Cloaker` and click `Test Cloaker`.
+   - Use `Use Rule` to select a rule or a shortcut preset, then Submit. See detailed steps in the next section.
 
 ## How to Test Cloaker
 
