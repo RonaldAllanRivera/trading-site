@@ -1,6 +1,36 @@
+## [0.3.3] - 2025-09-14
+
+### Changed
+- README restructured for clarity and best practices:
+  - Added Table of Contents, Quick Start (Local), Key URLs, and Troubleshooting anchors.
+  - Refined Cloaker testing documentation and alignment with admin tester and Postman collection.
+  - Deployment section expanded for SiteGround SSH + GitHub with two options:
+    - Option A: app outside `public_html` with docroot/symlink to `public/` (recommended).
+    - Option B: clone directly into `public_html` with root `.htaccess` hardening (quick).
+  - Added quick-start for artworkwebsite.com and an alternative to convert existing `public_html` into a Git working copy.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [0.3.2] - 2025-09-14
+
+### Added
+- Cloaker middleware `App\\Http\\Middleware\\CloakerMiddleware` evaluating active rules (ip/country/ua/referrer/param) and redirecting to Safe/Offer.
+- Admin tester enhancements in `CloakRuleResource` → `ListCloakRules`:
+  - "Use Rule" selector to auto-fill tests from DB rules.
+  - Shortcut presets: Normal User, Google Reviewers, Facebook Reviewers.
+  - Live-run buttons open `/` and `/sign-up` with overrides (`__ua`, `__ref`, `__country`).
+
+### Changed
+- Prevent redirect loops in cloaker by skipping redirects when destination equals current URL.
+- Tester decision logic aligned with middleware (act only on matched rule; whitelist=offer, blacklist=safe).
+- Renamed seeder rule to `Blacklist Google Reviewers` for clarity.
+- README updated with refined cloaker testing (admin tester flow + Postman tutorial). Postman collection names clarified.
+
+### Fixed
+- Fieldset component removed from Filament form to match version support.
+- Added tester overrides so new-tab runs simulate UA/Referrer/Country.
 
 ## [0.3.1] - 2025-09-13
 

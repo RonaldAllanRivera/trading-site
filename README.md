@@ -2,11 +2,52 @@
 
 This repository contains a Laravel 12 application with Filament 4 admin, a polished public landing site, and a complete public authentication flow (signup/login/logout, password reset, change password) with a simple dashboard. It includes lead capture, admin CRUD for users and leads, CSV export, seeders, and a testing guide. Landing pages are implemented as Blade views using modular includes and static assets served from `public/landing-pages/`.
 
+## Table of Contents
+
+- Overview (this section)
+- [Tech Stack](#tech-stack)
+- [Quick Start (Local)](#quick-start-local)
+- [Features](#features)
+- [Public Landing Pages](#public-landing-pages)
+- [Authentication & Dashboard (Public)](#authentication--dashboard-public)
+- [Local Development](#local-development)
+- [Admin Notes](#admin-notes)
+- [How to Test Cloaker](#how-to-test-cloaker)
+- [Deployment (SiteGround SSH + GitHub)](#deployment-siteground-ssh--github)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+
 ## Tech Stack
 
 - Laravel 12 (PHP 8.2+)
 - Filament 4 (Livewire v3)
 - MySQL / MariaDB
+
+## Quick Start (Local)
+
+1) Install dependencies
+```bash
+composer install
+```
+2) Configure environment
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+3) Migrate and seed (optional)
+```bash
+php artisan migrate --seed
+```
+4) Run the app
+```bash
+php artisan serve
+```
+
+### Key URLs
+- `http://127.0.0.1:8000/` — Home
+- `http://127.0.0.1:8000/sign-up` — Sign up
+- `http://127.0.0.1:8000/login` — Login
+- `http://127.0.0.1:8000/admin` — Filament Admin
 
 ## Features
 
@@ -27,6 +68,8 @@ This repository contains a Laravel 12 application with Filament 4 admin, a polis
 - Admin (Filament 4)
   - Leads: list with search, status badge/filter, and CSV export.
   - Users: list/create/edit with `is_admin` toggle and optional password update.
+  - Pixels: list/create/edit pixel snippets with provider, location, status, and notes.
+  - Cloaker: create rules (whitelist/blacklist) with match types (ip/country/ua/referrer/param), metrics, admin tester with presets and run-on-route buttons.
   - Access control: only users with `is_admin = true` can access `/admin`; non-admins are redirected to `/dashboard`.
   - Admin login includes a “Forgot your password?” link.
 
@@ -191,24 +234,186 @@ Open:
 6) Change password (authenticated)
    - Visit `/settings/password` and submit current + new password.
 
-## Deployment (Namecheap/cPanel quick notes)
+## How to Test Cloaker
 
-1. Point the domain's document root to `public/`.
-2. Upload code or connect via Git/SSH.
-3. Run in SSH:
+The cloaker is active on `/` and `/sign-up` via `App\Http\Middleware\CloakerMiddleware`.
+
+- Admin-side tester (recommended)
+  - In Filament: Marketing → Cloaker → click `Test Cloaker` in the header.
+  - Use Rule: select any active rule (e.g., "Blacklist Google Reviewers"). The form auto-fills a matching test. You can still tweak values.
+  - Shortcut Preset: `Normal User`, `Google Reviewers`, `Facebook Reviewers`, or `Custom`.
+  - Fields: choose IP, Country (ISO 2), User Agent, Referrer; add Query Params as Key/Value. Custom fields appear when needed.
+  - Submit: see the decision (SAFE/OFFER/allow) and the matched rule name.
+  - Run on actual route: the notification includes buttons to open `/` and `/sign-up` in new tabs. These links include testing overrides: `__ua`, `__ref`, `__country` so the middleware can simulate those values.
+  - Use `Reset Counters` to zero `hits_safe` / `hits_offer` across all rules.
+
+- Postman testing (also available)
+  - Import the ready-made collection: `docs/postman/CloakerTests.postman_collection.json` and set `baseUrl` if needed.
+  - Requests included (redirects disabled per request):
+    - Home / Sign-up — Google Reviewers (UA)
+    - Home / Sign-up — Facebook Reviewers (UA + Referrer)
+    - Home / Sign-up — Country header example (SG via CF-IPCountry)
+    - Home / Sign-up — Param Match (utm_source)
+  - Tips:
+    - Turn OFF "Automatically follow redirects" globally to always see `302 Location` (optional; per-request is already disabled).
+    - You can add `__country=XX` as a query param if you’re not behind Cloudflare.
+  - Results:
+    - With redirects OFF: expect `302` with `Location: /safe` or `Location: /`.
+    - With redirects ON: Postman follows to the final page content (Safe or Offer).
+
+- Counters and visibility
+  - Each redirect increments `hits_safe` or `hits_offer` on the matched rule.
+  - Open any rule in Filament to see the counters; use `Reset Counters` to clear.
+
+- Quick toggle
+  - You can disable the cloaker globally by adding `CLOAKING_ENABLED=false` in `.env` and (optionally) referencing it in `config/app.php`:
+    ```php
+    // config/app.php
+    'cloaking_enabled' => env('CLOAKING_ENABLED', true),
+    ```
+
+## Deployment (SiteGround SSH + GitHub)
+
+Use SiteGround SSH to deploy directly from GitHub. SiteGround SSH guide: https://world.siteground.com/tutorials/ssh/putty/
+
+1) Prepare SSH and repo access
+- Generate or use an SSH key in SiteGround → Site Tools → Devs → SSH Keys Manager.
+- Add the public key to GitHub (either as a repository Deploy key or on your GitHub account) so you can use the SSH clone URL.
+
+2) Choose your layout
+- Option A — Recommended (secure): keep the repo outside `public_html` and point your domain to the app's `public/`
+  - Pros: app files are outside web root; least risk of exposing `.env`.
+  - How:
+    - Clone to `~/apps/trading-site` (or similar)
+    - Point the domain's document root to `~/apps/trading-site/public` (Site Tools → Domain → Document Root), or symlink `public_html` to that `public/`.
+- Option B — Quick (works but less secure): clone directly into `public_html` and rewrite everything to `/public`
+  - Pros: simplest when you cannot change document root.
+  - Cons: the full Laravel repo lives in web root; rely on .htaccess to route only through `public/` and block sensitive files.
+
+3) Clone from GitHub (SSH)
+```bash
+# SSH into SiteGround (see tutorial link above)
+ssh USER@SERVER
+
+# Option A: outside public_html (recommended)
+mkdir -p ~/apps && cd ~/apps
+git clone --depth 1 git@github.com:RonaldAllanRivera/trading-site.git
+cd trading-site
+
+# Option B: directly into public_html (quick)
+cd ~/www/ARTWORKDOMAIN.COM/public_html
+git clone --depth 1 git@github.com:RonaldAllanRivera/trading-site.git .
 ```
+
+Quick start for artworkwebsite.com (Option B)
+```bash
+# 1) SSH into the server
+ssh USER@SERVER
+
+# 2) Backup current site (optional)
+cd ~/www/artworkwebsite.com/
+mv public_html public_html.backup_$(date +%s)
+mkdir -p public_html && cd public_html
+
+# 3) Clone your GitHub repo directly into public_html
+git clone --depth 1 git@github.com:RonaldAllanRivera/trading-site.git .
+
+# 4) Environment
+cp .env.example .env
+sed -i 's|APP_URL=.*|APP_URL=https://artworkwebsite.com|' .env
+nano .env   # set DB_*, MAIL_*, etc.
+
+# 5) Install & optimize
 composer install --no-dev --optimize-autoloader
 php artisan key:generate --force
+php artisan storage:link
+php artisan migrate --force --seed   # remove --seed if not desired
+php artisan optimize
+
+# 6) Ensure root .htaccess exists to forward to /public and block sensitive files
+test -f .htaccess && echo "Root .htaccess found" || echo "See README for a sample .htaccess to create here"
+```
+
+4) Configure environment
+```bash
+cp .env.example .env
+# Edit .env and set APP_URL, DB_* credentials, MAIL_*, etc.
+nano .env
+```
+
+5) Install dependencies and build cache
+```bash
+composer install --no-dev --optimize-autoloader
+php artisan key:generate --force
+php artisan storage:link
+php artisan migrate --force --seed   # remove --seed if not desired
+php artisan optimize
+```
+
+6) Web server docroot
+- Option A (recommended): set document root to the app `public/`.
+- Option B (if cloning into `public_html`): ensure an `.htaccess` in `public_html` rewrites to `/public` and blocks sensitive files.
+
+Example `.htaccess` for Option B (Apache 2.4):
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # send everything to /public
+  RewriteCond %{REQUEST_URI} !^/public/
+  RewriteRule ^(.*)$ public/$1 [L,QSA]
+</IfModule>
+
+# extra hardening (deny direct access to sensitive files)
+<FilesMatch "^(\.env|artisan|composer\.(json|lock)|package\.json|webpack\.mix\.js|vite\.config\.js)$">
+  Require all denied
+</FilesMatch>
+```
+
+7) File permissions (shared hosting defaults)
+```bash
+find storage -type d -exec chmod 775 {} \;
+find storage -type f -exec chmod 664 {} \;
+chmod -R 775 bootstrap/cache
+```
+
+8) Updating to a new version
+```bash
+# Option A
+cd ~/apps/trading-site
+# Option B
+# cd ~/www/ARTWORKDOMAIN.COM/public_html
+
+git pull --rebase
+composer install --no-dev --optimize-autoloader
 php artisan migrate --force
 php artisan optimize
 ```
-4. Ensure correct file permissions for `storage/` and `bootstrap/cache/`.
 
-## Next Steps
+Alternative: convert an existing `public_html` into a Git working copy
+```bash
+# WARNING: this will overwrite local changes. Backup first.
+cd ~/www/ARTWORKDOMAIN.COM/public_html
 
-- Introduce a dedicated Admin guard and resources (Leads, Pixels, Cloaking Rules, Traffic Logs, Settings).
-- Wire up tracking/consent and language switcher as needed.
-- Expand public dashboard features.
+# Backup
+tar -czf ../public_html_backup_$(date +%Y%m%d_%H%M%S).tar.gz .
+
+# If a .git already exists and points elsewhere, remove it
+rm -rf .git
+
+# Initialize and attach your GitHub repo
+git init
+git remote add origin git@github.com:RonaldAllanRivera/trading-site.git
+git fetch --depth 1 origin main
+git reset --hard origin/main
+
+# Install and optimize
+composer install --no-dev --optimize-autoloader
+php artisan key:generate --force
+php artisan storage:link
+php artisan migrate --force --seed   # remove --seed if not desired
+php artisan optimize
+```
+
 
 ## License
 

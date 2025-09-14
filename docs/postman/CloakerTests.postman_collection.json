@@ -1,0 +1,125 @@
+{
+  "info": {
+    "_postman_id": "4c3b7a26-5c7b-43f0-9f0c-02a6a3d1a9a2",
+    "name": "Cloaker Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection to test cloaker decisions on / and /sign-up with common reviewer/user presets."
+  },
+  "item": [
+    {
+      "name": "Home",
+      "item": [
+        {
+          "name": "Home - Google Reviewers (UA)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "User-Agent", "value": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" }
+            ],
+            "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] },
+            "description": "Simulates Googlebot visiting /. Expect SAFE or OFFER depending on your whitelist/blacklist rules."
+          },
+          "protocolProfileBehavior": { "followRedirects": false }
+        },
+        {
+          "name": "Home - Facebook Reviewers (UA+Referrer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "User-Agent", "value": "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)" },
+              { "key": "Referer", "value": "https://facebook.com/ads" }
+            ],
+            "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] },
+            "description": "Simulates Facebook reviewer with UA + referrer."
+          },
+          "protocolProfileBehavior": { "followRedirects": false }
+        },
+        {
+          "name": "Home - Country header example (CF-IPCountry: SG)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "CF-IPCountry", "value": "SG" }
+            ],
+            "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] },
+            "description": "Simulates a visitor from Singapore via CF-IPCountry header."
+          },
+          "protocolProfileBehavior": { "followRedirects": false }
+        },
+        {
+          "name": "Home - Param Match (utm_source)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/?utm_source=review",
+              "host": ["{{baseUrl}}"],
+              "path": [""],
+              "query": [ { "key": "utm_source", "value": "review" } ]
+            },
+            "description": "Tests param match rules (key=value)."
+          },
+          "protocolProfileBehavior": { "followRedirects": false }
+        }
+      ]
+    },
+    {
+      "name": "Sign-up",
+      "item": [
+        {
+          "name": "Sign-up - Google Reviewers (UA)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "User-Agent", "value": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" }
+            ],
+            "url": { "raw": "{{baseUrl}}/sign-up", "host": ["{{baseUrl}}"], "path": ["sign-up"] },
+            "description": "Simulates Googlebot visiting /sign-up."
+          },
+          "protocolProfileBehavior": { "followRedirects": false }
+        },
+        {
+          "name": "Sign-up - Facebook Reviewers (UA+Referrer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "User-Agent", "value": "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)" },
+              { "key": "Referer", "value": "https://facebook.com/ads" }
+            ],
+            "url": { "raw": "{{baseUrl}}/sign-up", "host": ["{{baseUrl}}"], "path": ["sign-up"] },
+            "description": "Simulates Facebook reviewer on /sign-up."
+          },
+          "protocolProfileBehavior": { "followRedirects": false }
+        },
+        {
+          "name": "Sign-up - Country header example (CF-IPCountry: SG)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "CF-IPCountry", "value": "SG" }
+            ],
+            "url": { "raw": "{{baseUrl}}/sign-up", "host": ["{{baseUrl}}"], "path": ["sign-up"] },
+            "description": "Simulates a Singapore visitor on /sign-up via CF-IPCountry header."
+          },
+          "protocolProfileBehavior": { "followRedirects": false }
+        },
+        {
+          "name": "Sign-up - Param Match (utm_source)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/sign-up?utm_source=review",
+              "host": ["{{baseUrl}}"],
+              "path": ["sign-up"],
+              "query": [ { "key": "utm_source", "value": "review" } ]
+            },
+            "description": "Tests param match rules on sign-up page."
+          },
+          "protocolProfileBehavior": { "followRedirects": false }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://the-immediate-trade-pro.test" }
+  ]
+}
