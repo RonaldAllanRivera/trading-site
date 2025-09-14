@@ -211,6 +211,11 @@ Open:
 - Demo leads (15 records): `php artisan db:seed --class=Database\\Seeders\\LeadSeeder`
 - All seeders: `php artisan db:seed`
 
+Notes:
+- Demo volume is configurable via `LEAD_COUNT` in `.env`. Defaults to 5 in production, 15 otherwise.
+  - Example: `LEAD_COUNT=5`
+- If seeding feels slow on shared hosting, temporarily lower `BCRYPT_ROUNDS` (e.g., `10`) and restore later if desired.
+
 ## Testing Tutorial (Step-by-step)
 
 1) Public signup → dashboard
@@ -430,6 +435,23 @@ php artisan migrate --force --seed   # remove --seed if not desired
 php artisan optimize
 ```
 
+
+## Troubleshooting
+
+- Seeding slow or appears stuck
+  - Cause: bcrypt hashing for generated users; shared hosting can be slow at higher costs.
+  - Fixes:
+    - Reduce demo volume: set `LEAD_COUNT=5` (default in production) and run only the leads seeder.
+    - Temporarily set `BCRYPT_ROUNDS=10`, seed, then restore.
+    - Seed specific classes: `php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force`.
+- Composer not found
+  - Try absolute path: `/usr/local/bin/composer install --no-dev --optimize-autoloader`.
+- Permission denied writing to storage
+  - Run: `find storage -type d -exec chmod 775 {} \\; && find storage -type f -exec chmod 664 {} \\; && chmod -R 775 bootstrap/cache`.
+- GitHub SSH Permission denied (publickey)
+  - Generate SSH key on server, add to GitHub Deploy keys, and test with `ssh -T git@github.com`.
+- HTTP 500 after deploy
+  - Check `storage/logs/laravel.log`; verify `.env` DB credentials; ensure `.htaccess` rewrites to `/public`.
 
 ## License
 
