@@ -1,3 +1,15 @@
+## [0.3.4] - 2025-09-14
+
+### Fixed
+- Routes: explicitly support GET and HEAD for `/` and `/sign-up` to avoid `MethodNotAllowedHttpException` seen on production hosts.
+
+### Added
+- AdminSeeder: seed an additional admin account `Admin Tester <admin@gmail.com>` with password `123456` (hashed via model cast).
+
+### Changed
+- Deployment docs: clarified Option B (clone to `public_html`) and Option B.2 (in-place Git) with a clean root `.htaccess` sample and first-time GitHub SSH trust note.
+- .env.example: populated SiteGround-friendly production defaults and added `ADMIN_*`, `CLOAKING_ENABLED`.
+
 ## [0.3.3] - 2025-09-14
 
 ### Changed

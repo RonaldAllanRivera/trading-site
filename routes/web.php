@@ -6,13 +6,17 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PasswordController;
 
 // Public landing pages
-Route::view('/', 'landing.home')->name('home')->middleware(\App\Http\Middleware\CloakerMiddleware::class);
+Route::match(['GET', 'HEAD'], '/', function () {
+    return view('landing.home');
+})->name('home')->middleware(\App\Http\Middleware\CloakerMiddleware::class);
 Route::view('/privacy', 'landing.privacy')->name('privacy');
 Route::view('/terms', 'landing.terms')->name('terms');
 Route::view('/cookie', 'landing.cookie')->name('cookie');
 Route::view('/safe', 'landing.safe')->name('safe');
 Route::view('/login', 'landing.login')->name('login');
-Route::view('/sign-up', 'landing.sign-up')->name('sign-up')->middleware(\App\Http\Middleware\CloakerMiddleware::class);
+Route::match(['GET', 'HEAD'], '/sign-up', function () {
+    return view('landing.sign-up');
+})->name('sign-up')->middleware(\App\Http\Middleware\CloakerMiddleware::class);
 
 // Lead submissions
 Route::post('/leads', [LeadsController::class, 'store'])->name('leads.store');
