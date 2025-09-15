@@ -1,6 +1,14 @@
 # The Immediate Trade Pro — Laravel 12 + Filament 4
 
-This repository contains a Laravel 12 application with Filament 4 admin, a polished public landing site, and a complete public authentication flow (signup/login/logout, password reset, change password) with a simple dashboard. It includes lead capture, admin CRUD for users and leads, CSV export, seeders, and a testing guide. Landing pages are implemented as Blade views using modular includes and static assets served from `public/landing-pages/`.
+This is a production‑ready Laravel 12 application with a modern Filament 4 admin and a polished public landing experience. It demonstrates end‑to‑end onboarding (lead capture → account creation → login → dashboard), an opinionated admin suite (Leads, Pixels, Cloaker, Password), and strong developer ergonomics (seeders, factories, Postman, and deployment playbooks).
+
+**What stands out at a glance**
+- Full public UX: modular Blade landing pages, auth‑aware navigation, friendly password UX, and a minimal dashboard.
+- Data & CRUD depth: Leads and Users with search/filtering and a streaming CSV export designed for large datasets.
+- Growth‑ready: a Pixels manager to attach tracking snippets (FB, Google, etc.) by location and status.
+- Traffic control: rule‑based Cloaker middleware (whitelist/blacklist by IP, country, UA, referrer, param), with hit counters.
+- Admin tester: presets for common reviewers, a "Use Rule" autofill from DB, and live‑run links that simulate traffic on real routes.
+- Operational maturity: SiteGround SSH + GitHub deployment flow, env templates for production, and troubleshooting guidance.
 
 ## Table of Contents
 
